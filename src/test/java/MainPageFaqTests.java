@@ -1,62 +1,15 @@
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import ru.yandex.praktikum.pageObjectModels.MainPage;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+public class MainPageFaqTests extends BaseMainPageTestClass {
 
-@RunWith(Parameterized.class)
-public class MainPageFaqTests {
-    WebDriver driver;
-    MainPage mainPage;
-
-    String question;
-    String answer;
-    @Before
-    public void setupDriverAndPageObject(){
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
-        driver = new ChromeDriver(options);
-
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        mainPage = new MainPage(driver);
-    }
-
-    public MainPageFaqTests(String question, String answer) {
-        this.question = question;
-        this.answer = answer;
-    }
-
-    @Parameterized.Parameters
-    public static Object[][] getFaqData(){
-        return new Object[][]{
-                {"Сколько это стоит? И как оплатить?", "Сутки — 400 рублей. Оплата курьеру — наличными или картой."},
-                {"Хочу сразу несколько самокатов! Так можно?", "Пока что у нас так: один заказ — один самокат. Если хотите покататься с друзьями, можете просто сделать несколько заказов — один за другим."},
-                {"Как рассчитывается время аренды?", "Допустим, вы оформляете заказ на 8 мая. Мы привозим самокат 8 мая в течение дня. Отсчёт времени аренды начинается с момента, когда вы оплатите заказ курьеру. Если мы привезли самокат 8 мая в 20:30, суточная аренда закончится 9 мая в 20:30."},
-                {"Можно ли заказать самокат прямо на сегодня?", "Только начиная с завтрашнего дня. Но скоро станем расторопнее."},
-                {"Можно ли продлить заказ или вернуть самокат раньше?", "Пока что нет! Но если что-то срочное — всегда можно позвонить в поддержку по красивому номеру 1010."},
-                {"Вы привозите зарядку вместе с самокатом?", "Самокат приезжает к вам с полной зарядкой. Этого хватает на восемь суток — даже если будете кататься без передышек и во сне. Зарядка не понадобится."},
-                {"Можно ли отменить заказ?", "Да, пока самокат не привезли. Штрафа не будет, объяснительной записки тоже не попросим. Все же свои."},
-                {"Я жизу за МКАДом, привезёте?", "Да, обязательно. Всем самокатов! И Москве, и Московской области."},
-        };
-    }
-
-    @Test
-    public void checkClickOnQuestionOpeningCorrectAnswer() {
+    @ParameterizedTest(name = "{index}. Test data: Question={0}; Answer={1}")
+    @CsvFileSource(resources = "/testDataFAQ.csv")
+    public void checkClickOnQuestionOpeningCorrectAnswer(String question, String answer) {
         mainPage.clickFaqQuestion(question);
         mainPage.waitForLoadFaqAnswer(question);
         String actualAnswer = mainPage.getFaqAnswerText(question);
-        assertEquals("Answer for question: '" + question + "' is different from expected: ", answer, actualAnswer);
+        assertEquals(answer, actualAnswer, "Answer for question: '" + question + "' is different from expected: ");
     }
-
-    @After
-    public void teardown() {
-        driver.quit();
-    }
-
 }

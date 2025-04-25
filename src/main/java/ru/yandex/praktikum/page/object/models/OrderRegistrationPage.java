@@ -1,7 +1,8 @@
-package ru.yandex.praktikum.pageObjectModels;
+package ru.yandex.praktikum.page.object.models;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -70,6 +71,16 @@ public class OrderRegistrationPage {
                 .until(driver -> driver.findElement(confirmationWindowHeader)).isDisplayed();
     }
 
+    public boolean wasOrderConfirmed(){
+        try {
+            waitOrderConfirmedToLoad();
+        }
+        catch (TimeoutException e) {
+            return false;
+        }
+        return true;
+    }
+
     public void setName(String name) {
         driver.findElement(nameField).sendKeys(name);
     }
@@ -122,5 +133,28 @@ public class OrderRegistrationPage {
 
     public void clickConfirmOrderButton() {
         driver.findElement(confirmOrderButton).click();
+    }
+
+    public void registerOrder(String name, String surname, String address, String station, String phone, String date, String rentLength, boolean isBlackSelected, boolean isGreySelected, String comment) {
+        waitFirstPageToLoad();
+        setName(name);
+        setSurname(surname);
+        setAddress(address);
+        setStation(station);
+        setPhone(phone);
+
+        clickNextPageButton();
+        waitSecondPageToLoad();
+        setDate(date);
+        selectRentLength(rentLength);
+        if (isBlackSelected)
+            selectBlackColourCheckbox();
+        if (isGreySelected)
+            selectGreyColourCheckbox();
+        setComment(comment);
+
+        clickPlaceOrderButton();
+        waitOrderConfirmationPopUpToLoad();
+        clickConfirmOrderButton();
     }
 }

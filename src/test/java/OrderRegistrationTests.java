@@ -1,122 +1,34 @@
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import ru.yandex.praktikum.pageObjectModels.MainPage;
-import ru.yandex.praktikum.pageObjectModels.OrderRegistrationPage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import ru.yandex.praktikum.page.object.models.OrderRegistrationPage;
 
-@RunWith(Parameterized.class)
-public class OrderRegistrationTests {
-    private WebDriver driver;
+
+public class OrderRegistrationTests extends BaseMainPageTestClass{
     private OrderRegistrationPage orderRegistrationPage;
-    private MainPage mainPage;
 
-    private String name;
-    private String surname;
-    private String address;
-    private String station;
-    private String phone;
-    private String date;
-    private String rentLength;
-    private boolean isBlackSelected;
-    private boolean isGreySelected;
-    private String comment;
-
-    @Parameterized.Parameters
-    public static Object[][] getFaqData(){
-        return new Object[][]{
-                {"Ива", "Иванова", "Климашкина 1", "Сокольники", "81234567890", "05.05.2025", "сутки", true, true, "Комментарий"},
-                {"Екатерина", "Ховард", "Покровский бульвар 12", "Орехово", "+71234567890", "05.05.2025", "пятеро суток", false, false, ""}
-        };
-    }
-
-    public OrderRegistrationTests(String name, String surname, String address, String station, String phone, String date, String rentLength, boolean isBlackSelected, boolean isGreySelected, String comment) {
-        this.name = name;
-        this.surname = surname;
-        this.address = address;
-        this.station = station;
-        this.phone = phone;
-        this.date = date;
-        this.rentLength = rentLength;
-        this.isBlackSelected = isBlackSelected;
-        this.isGreySelected = isGreySelected;
-        this.comment = comment;
-    }
-
-    @Before
-    public void setupDriverAndPageObject(){
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
-        driver = new ChromeDriver(options);
-
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        mainPage = new MainPage(driver);
+    @BeforeEach
+    @Override
+    public void setupDriverAndPageObject() {
+        super.setupDriverAndPageObject();
         orderRegistrationPage = new OrderRegistrationPage(driver);
     }
 
-    @Test
-    public void checkOrderRegistrationHeaderButtonPositiveFlowTest() {
+    @ParameterizedTest(name="{index}. Test data: Name={0}, Surname={1}, Address={2}, Station={3}, Phone={4}, Date={5}, Rent length={6}, Is black={7}, Is grey={8}, Comment={9}")
+    @CsvFileSource(resources = "/testDataPositiveRegistration.csv")
+    public void checkOrderRegistrationHeaderButtonPositiveFlowTest(String name, String surname, String address, String station, String phone, String date, String rentLength, boolean isBlackSelected, boolean isGreySelected, String comment) {
         mainPage.clickHeaderRegistrationButton();
-        registerOrderOnRegistrationPage();
-        orderRegistrationPage.waitOrderConfirmedToLoad();
+        orderRegistrationPage.registerOrder(name, surname, address, station, phone, date, rentLength, isBlackSelected, isGreySelected, comment);
+        assert(orderRegistrationPage.wasOrderConfirmed());
     }
 
-    @Test
-    public void checkOrderRegistrationHomeButtonPositiveFlowTest() {
+    @ParameterizedTest(name="{index}. Test data: Name={0}, Surname={1}, Address={2}, Station={3}, Phone={4}, Date={5}, Rent length={6}, Is black={7}, Is grey={8}, Comment={9}")
+    @CsvFileSource(resources = "/testDataPositiveRegistration.csv")
+    public void checkOrderRegistrationHomeButtonPositiveFlowTest(String name, String surname, String address, String station, String phone, String date, String rentLength, boolean isBlackSelected, boolean isGreySelected, String comment) {
         mainPage.clickHomeRegistrationButton();
-        registerOrderOnRegistrationPage();
-        orderRegistrationPage.waitOrderConfirmedToLoad();
+        orderRegistrationPage.registerOrder(name, surname, address, station, phone, date, rentLength, isBlackSelected, isGreySelected, comment);
+        assert(orderRegistrationPage.wasOrderConfirmed());
     }
 
-    private void registerOrderOnRegistrationPage() {
-        orderRegistrationPage.waitFirstPageToLoad();
-        orderRegistrationPage.setName(name);
-        orderRegistrationPage.setSurname(surname);
-        orderRegistrationPage.setAddress(address);
-        orderRegistrationPage.setStation(station);
-        orderRegistrationPage.setPhone(phone);
-
-        orderRegistrationPage.clickNextPageButton();
-        orderRegistrationPage.waitSecondPageToLoad();
-        orderRegistrationPage.setDate(date);
-        orderRegistrationPage.selectRentLength(rentLength);
-        if (isBlackSelected)
-            orderRegistrationPage.selectBlackColourCheckbox();
-        if (isGreySelected)
-            orderRegistrationPage.selectGreyColourCheckbox();
-        orderRegistrationPage.setComment(comment);
-
-        orderRegistrationPage.clickPlaceOrderButton();
-        orderRegistrationPage.waitOrderConfirmationPopUpToLoad();
-        orderRegistrationPage.clickConfirmOrderButton();
-    }
-
-    private void sendOrder() {
-        orderRegistrationPage.waitFirstPageToLoad();
-        orderRegistrationPage.setName(name);
-        orderRegistrationPage.setSurname(surname);
-        orderRegistrationPage.setAddress(address);
-        orderRegistrationPage.setStation(station);
-        orderRegistrationPage.setPhone(phone);
-
-        orderRegistrationPage.clickNextPageButton();
-        orderRegistrationPage.waitSecondPageToLoad();
-        orderRegistrationPage.setDate(date);
-        orderRegistrationPage.selectRentLength(rentLength);
-        if (isBlackSelected)
-            orderRegistrationPage.selectBlackColourCheckbox();
-        if (isGreySelected)
-            orderRegistrationPage.selectGreyColourCheckbox();
-        orderRegistrationPage.setComment(comment);
-    }
-
-    @After
-    public void teardown() {
-        driver.quit();
-    }
 
 }

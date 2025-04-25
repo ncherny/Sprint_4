@@ -1,4 +1,4 @@
-package ru.yandex.praktikum.pageObjectModels;
+package ru.yandex.praktikum.page.object.models;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 public class MainPage {
     private WebDriver driver;
 
+    public final static String MAIN_PAGE_URL = "https://qa-scooter.praktikum-services.ru/";
     private final static String XPATH_TO_FAQ_PANEL = "//div[@class='Home_FAQ__3uVm4']";
     //FAQ question headers
     private By faqHeaders = By.xpath(XPATH_TO_FAQ_PANEL + "//div[@class='accordion__button']");
